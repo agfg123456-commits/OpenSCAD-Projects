@@ -39,7 +39,7 @@ bolt_hole       = 4.4;    // M4 clearance
 cb_dia          = 10.0;   // counterbore for socket head (head is 9.3)
 cb_depth        = 4.2;
 head_height     = 4.0;    // M4 SHCS head height (check only)
-nut_af          = 7.3;    // nut pocket across flats (M4 nut is 7.0 AF, ~7.7 corner to corner)
+nut_af          = 7.0;    // nut pocket across flats (measured nut: 6.7 AF, 7.6 corner to corner)
 nut_depth       = 3.4;    // nut pocket depth
 nut_thick       = 3.2;    // M4 nut thickness (check only)
 

@@ -1,6 +1,6 @@
 // =====================================================================
 //  Handheld digital microscope -> boom arm clamp
-//  Split ring clamp (one M3 bolt) + rear arm + single fork tab.
+//  Split ring clamp (one M4 bolt) + rear arm + single fork tab.
 //  All units mm.
 //
 //  Coordinate system (as printed):
@@ -32,16 +32,16 @@ wall            = 4;      // ring wall thickness, follows the D shape
 split_gap       = 3;      // split at front center, full height
 
 /* [Bolt ears] */
-ear_thickness   = 8;      // each ear, in X (>= 6)
-ear_out         = 10;     // how far the ears stick out past the ring front
-bolt_len        = 16;     // M3 x 16 socket head cap screw (under head)
-bolt_hole       = 3.4;    // M3 clearance
-cb_dia          = 6.2;    // counterbore for socket head
-cb_depth        = 3.2;
-head_height     = 3.0;    // M3 SHCS head height (check only)
-nut_af          = 5.8;    // nut pocket across flats (M3 nut is 5.5)
-nut_depth       = 2.6;    // nut pocket depth
-nut_thick       = 2.4;    // M3 nut thickness (check only)
+ear_thickness   = 13;     // each ear, in X (>= 6); sized so M4x25 just passes the nut
+ear_out         = 13;     // how far the ears stick out past the ring front
+bolt_len        = 25;     // M4 x 25 socket head cap screw (under head)
+bolt_hole       = 4.4;    // M4 clearance
+cb_dia          = 10.0;   // counterbore for socket head (head is 9.3)
+cb_depth        = 4.2;
+head_height     = 4.0;    // M4 SHCS head height (check only)
+nut_af          = 7.3;    // nut pocket across flats (M4 nut is 7.0 AF, ~7.7 corner to corner)
+nut_depth       = 3.4;    // nut pocket depth
+nut_thick       = 3.2;    // M4 nut thickness (check only)
 
 /* [Arm and tab] */
 arm_width       = 12;     // arm, left to right
@@ -120,7 +120,7 @@ function tab_front_y(z) = tab_front_base_y
 bolt_end      = bolt_len - (ear_thickness - cb_depth) - split_gap;
 nut_far_face  = ear_thickness - nut_depth + nut_thick;
 echo(str("BOLT: stack ears+gap = ", 2 * ear_thickness + split_gap,
-         ", M3x", bolt_len, " tip lands ", bolt_end - ear_thickness,
+         ", M", bolt_hole < 4 ? 3 : 4, "x", bolt_len, " tip lands ", bolt_end - ear_thickness,
          " past nut-ear outer face (nut far face at ", nut_far_face - ear_thickness,
          "). If the gap closes fully the tip protrudes ", bolt_end + split_gap - ear_thickness));
 echo(str("TAB: hole at y=", tab_offset, " z=", tab_hole_z,
@@ -131,6 +131,10 @@ assert(ear_thickness >= 6, "ears must be at least 6 thick");
 assert(bolt_end >= nut_far_face, "bolt too short to pass fully through the nut");
 assert(bolt_end - ear_thickness <= 2, "bolt protrudes more than 2 mm past nut ear");
 assert(cb_depth >= head_height, "counterbore shallower than bolt head");
+assert(ear_out / 2 >= max(cb_dia / 2, nut_af / 2) + 1,
+       "counterbore / nut pocket too close to the ear tip");
+assert(bolt_z + cb_dia / 2 * (use_teardrops ? teardrop_cap : 1) < hc || test_slice,
+       "counterbore breaks out of the top of the ears");
 assert(arm_width / 2 + arm_fillet <= body_flat / 2,
        "arm + fillets wider than the ring's flat back");
 assert(tab_thickness / 2 + tab_fillet <= arm_width / 2,
@@ -171,7 +175,7 @@ module tapered(z0, z1, g) {
 //  Printing helpers: horizontal holes along X
 // ---------------------------------------------------------------------
 module teardrop2d(r) {
-    if (use_teardrops) {
+    if (use_teardrops && !test_slice) {   // 5 mm slice: plain round holes
         intersection() {
             union() {
                 circle(r = r);
